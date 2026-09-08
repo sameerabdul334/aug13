@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Phone Store</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 25px 0 10px;
+        }
+
+        .header h1 {
+            font-size: 38px;
+            margin: 0;
+            color: #111;
+        }
+
+        /* Cart */
+        .cart {
+            position: fixed;
+            right: 40px;
+            top: 10px;
+            background: white;
+            padding: 16px 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px #bbb;
+            font-size: 18px;
+            font-weight: bold;
+            z-index: 10;
+        }
+
+        /* Search */
+        .search-container {
+            text-align: center;
+            margin: 35px 0;
+        }
+
+        #searchBox {
+            width: 400px;
+            max-width: 80%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        #loadBtn {
+            display: block;
+            margin: 18px auto;
+            padding: 12px 20px;
+            background: #087ff5;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #loadBtn:hover {
+            background: #066bd1;
+        }
+
+        /* Phone container */
+        .phone-container {
+            width: 90%;
+            max-width: 1100px;
+            margin: auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 35px;
+            padding-bottom: 50px;
+        }
+
+        /* Phone card */
+        .phone-card {
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 5px #ddd;
+            transition: 0.3s;
+        }
+
+        .phone-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px #ccc;
+        }
+
+        .phone-card img {
+            width: 100%;
+            height: 260px;
+            object-fit: contain;
+            margin-bottom: 10px;
+        }
+
+        .phone-card h2 {
+            font-size: 22px;
+            margin: 10px 0;
+        }
+
+        .phone-card p {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .phone-card button {
+            background: #087ff5;
+            color: white;
+            border: none;
+            padding: 11px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .phone-card button:hover {
+            background: #066bd1;
+        }
+
+        /* Cart items */
+        #cartItems {
+            width: 90%;
+            max-width: 700px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px #ccc;
+            display: none;
+        }
+
+        #cartItems h2 {
+            margin-top: 0;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .remove-btn {
+            background: #e53935;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .phone-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .phone-container {
+                grid-template-columns: 1fr;
+            }
+
+            .cart {
+                position: static;
+                width: fit-content;
+                margin: 10px auto;
+            }
+
+            .header h1 {
+                font-size: 30px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <h1>📱 Phone Store</h1>
+    </div>
+
+    <!-- Cart -->
+    <div class="cart">
+        Cart: <span id="cartCount">0</span> items |
+        Total: ₹<span id="cartTotal">0</span>
+    </div>
+
+    <!-- Search -->
+    <div class="search-container">
+
+        <input
+            type="text"
+            id="searchBox"
+            placeholder="Search by name or color..."
+            onkeyup="searchPhones()"
+        >
+
+        <button id="loadBtn" onclick="loadPhones()">
+            Load Phones
+        </button>
+
+    </div>
+
+    <!-- Phones -->
+    <div class="phone-container" id="phoneContainer"></div>
+
+    <!-- Cart Details -->
+    <div id="cartItems">
+        <h2>🛒 Shopping Cart</h2>
+        <div id="cartList"></div>
+    </div>
+
+
+    <script>
+
+        /* Phone Data */
+        const phones = [
+
+            
+            {
+                name: "Vivo V50",
+                color: "Rose Red",
+                price: 34999,
+                image: "https://placehold.co/300x300?text=Vivo+V50"
+            },
+
+            {
+                name: "Vivo V40",
+                color: "Titanium Grey",
+                price: 29999,
+                image: "https://placehold.co/300x300?text=Vivo+V40"
+            },
+
+            {
+                name: "iPhone 16",
+                color: "Black",
+                price: 69999,
+                image: "https://placehold.co/300x300?text=iPhone+16"
+            },
+
+            {
+                name: "iPhone 15",
+                color: "Blue",
+                price: 59999,
+                image: "https://placehold.co/300x300?text=iPhone+15"
+            }
+
+        ];
+
+
+        /* Cart */
+        let cart = [];
+
+
+        /* Load Phones */
+        function loadPhones() {
+
+            const container =
+                document.getElementById("phoneContainer");
+
+            container.innerHTML = "";
+
+            phones.forEach((phone, index) => {
+
+                const card = document.createElement("div");
+
+                card.className = "phone-card";
+
+                card.innerHTML = `
+
+                    <img
+                        src="${phone.image}"
+                        alt="${phone.name}"
+                    >
+
+                    <h2>${phone.name}</h2>
+
+                    <p>Color: ${phone.color}</p>
+
+                    <p>₹${phone.price.toLocaleString("en-IN")}</p>
+
+                    <button onclick="addToCart(${index})">
+                        Add to Cart
+                    </button>
+
+                `;
+
+                container.appendChild(card);
+
+            });
+        }
+
+
+        
+
+    </script>
+
+</body>
+</html>
